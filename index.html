@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터 시각화 게임</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        canvas {
+            width: 100%;
+            height: 400px;
+        }
+        .game-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: 0 auto;
+            background-color: #f0f0f0;
+            border: 2px solid #333;
+        }
+        .target {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .score {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>데이터 시각화 게임</h1>
+    <div class="game-container" id="gameArea">
+        <div class="target" id="target"></div>
+    </div>
+    <p class="score">점수: <span id="score">0</span></p>
+    <canvas id="myChart"></canvas>
+
+    <script>
+        // Chart.js 차트 설정
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const labels = [];
+        const data = [];
+        let counter = 0;
+
+        const myChart = new Chart(ctx, {
+            type: 'line', // 라인 차트
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '게임 점수 변화',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 목표물 클릭 시 점수 증가
+        const target = document.getElementById('target');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
+
+        target.addEventListener('click', () => {
+            score++;
+            scoreElement.textContent = score;
+
+            // 점수를 차트에 추가
+            data.push(score);
+            labels.push(counter++);
+
+            // 데이터가 10개 이상일 경우 가장 오래된 데이터 삭제
+            if (data.length > 10) {
+                data.shift();
+                labels.shift();
+            }
+
+            // 차트 갱신
+            myChart.update();
+
+            // 목표물 위치 변경
+            moveTarget();
+        });
+
+        // 목표물 랜덤 위치로 이동
+        function moveTarget() {
+            const gameArea = document.getElementById('gameArea');
+            const maxX = gameArea.offsetWidth - target.offsetWidth;
+            const maxY = gameArea.offsetHeight - target.offsetHeight;
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            target.style.left = `${randomX}px`;
+            target.style.top = `${randomY}px`;
+        }
+
+        // 게임 시작 시 목표물 위치 설정
+        moveTarget();
+    </script>
+</body>
+</html>
